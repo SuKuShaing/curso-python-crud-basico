@@ -1,6 +1,24 @@
 import random
 
+# sin recursividad, con while
+def binary_search_while(data, target):
+    low = 0
+    high = len(data) - 1
 
+    while low <= high:
+        mid = (low + high) // 2
+
+        if target == data[mid]:
+            return True
+        elif target < data[mid]:
+            high = mid - 1
+        else:
+            low = mid + 1
+
+    return False
+
+
+# con recursividad
 def binary_search(data, target, low, high):
 
     print('')
@@ -34,5 +52,7 @@ if __name__ == '__main__':
 
     target = int(input('What number would you like to find?: '))
     found = binary_search(data, target, 0, len(data) - 1)
+    found_while = binary_search_while(data, target)
 
     print(found)
+    print(found_while)
