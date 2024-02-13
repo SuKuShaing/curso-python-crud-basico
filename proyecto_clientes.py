@@ -1,26 +1,28 @@
 import sys
+import csv
+import os
+
+CLIENT_TABLE = '.clients.csv'
+CLIENT_SCHEMA = ['name', 'company', 'email', 'position']
+clients = []
 
 
-clients = [
-    {
-        'name': 'Pablo',
-        'company': 'Google',
-        'email': 'Pablo@google.com',
-        'position': 'Software engineer',
-    },
-    {
-        'name': 'Ricardo',
-        'company': 'Facebook',
-        'email': 'Ricardo@faceboo.com',
-        'position': 'Data engineer',
-    },
-    {
-        'name': 'Jorge',
-        'company': 'Microsoft',
-        'email': 'Jorge@microsoft',
-        'position': 'Web developer'
-    }
-]
+def _initialize_clients_from_storage():
+    with open(CLIENT_TABLE, mode='r') as f:
+        reader = csv.DictReader(f, fieldnames=CLIENT_SCHEMA)
+
+        for row in reader:
+            clients.append(row)
+
+
+def _save_clients_to_storage():
+    tmp_table_name = f'{CLIENT_TABLE}.tmp' # tabla temporal, no se puede editar un archivo mientras se está abierto o leyendo
+    with open(tmp_table_name, mode='w') as f:
+        writer = csv.DictWriter(f, fieldnames=CLIENT_SCHEMA) # f es como pasarle el archivo a la función
+        writer.writerows(clients)
+
+    os.remove(CLIENT_TABLE)
+    os.rename(tmp_table_name, CLIENT_TABLE) # renombramos el archivo temporal al nombre de la original
 
 
 def create_client(client):
@@ -134,6 +136,7 @@ def _get_index_client(client_name):
 
 
 if __name__ == '__main__':
+    _initialize_clients_from_storage()
     _print_welcome()
 
     command = input()
@@ -147,7 +150,7 @@ if __name__ == '__main__':
             'position': _get_client_field('position'),
         }
         create_client(client)
-        list_clients()
+        # list_clients()
 
     elif command == 'L':
         list_clients()
@@ -157,14 +160,14 @@ if __name__ == '__main__':
         index = _get_index_client(client_name) # Buscamos el cliente en la lista y obtenemos su indice
         if index is not None:
             update_client(index, client_name)
-            list_clients()
+            # list_clients()
 
     elif command == 'D':
         client_name = _get_client_name()
         index = _get_index_client(client_name)
         if index is not None:
             delete_client(index)
-            list_clients()
+            # list_clients()
 
     elif command == 'S':
         client_name = _get_client_name()
@@ -176,3 +179,5 @@ if __name__ == '__main__':
 
     else:
         print('Invalid command')
+    
+    _save_clients_to_storage() # Guardamos los cambios en el archivo csv
